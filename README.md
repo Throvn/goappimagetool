@@ -8,4 +8,4 @@ This is going to be used in the Desktop.js CLI to allow for cross platform bundl
 - [x] Download of appimage engine according to specified platform
 - [x] Embed md5 integrity check
 - [ ] Implement .upd_info to allow for incremental updates using zsync
-- [-] Implement signing using pgp keys
+- [ ] WIP: Implement signing using pgp keys
