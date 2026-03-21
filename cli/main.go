@@ -28,4 +28,11 @@ func main() {
 	hash := ait.CalculateMD5(fileName)
 	ait.UpdateMD5(fileName, hash)
 	fmt.Println(hex.EncodeToString(hash))
+	ait.MakeExecutable(fileName)
+	hash = ait.CalculateSha256(fileName)
+
+	// privateKey, err := ait.GeneratePGPPrivateKey("This")
+	// fmt.Println(privateKey)
+	// signedHash := ait.SignSha256(hash, privateKey, "This")
+	// ait.UpdateSha256(fileName, signedHash)
 }

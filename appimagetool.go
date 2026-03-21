@@ -1,117 +1,18 @@
 package appimagetoolgo
 
 import (
-	"crypto/md5"
-	"fmt"
-	"os"
+	"encoding/hex"
 
-	"github.com/yalue/elf_reader"
+	"github.com/ProtonMail/gopenpgp/v2/helper"
 )
 
-func readELF(path string) (elf_reader.ELFFile, error) {
-	// Print the section names in path. This code will work on both 32-bit
-	// and 64-bit systems.
-	raw, e := os.ReadFile(path)
-	if e != nil {
-		fmt.Printf("Failed reading %s: %s\n", "AppImage", e)
-		return nil, e
-	}
-	elf, e := elf_reader.ParseELFFile(raw)
-	if e != nil {
-		fmt.Printf("Failed parsing ELF file: %s\n", e)
-		return nil, e
-	}
-
-	return elf, nil
+func GeneratePGPPrivateKey(passphrase string) (string, error) {
+	return helper.GenerateKey("My Key", "random@mail.com", []byte(passphrase), "rsa", 4096)
 }
 
-func getSectionHeaderByName(path string, section string) (elf_reader.ELFSectionHeader, error) {
-	elf, err := readELF(path)
-	if err != nil {
-		return nil, err
-	}
+func SignSha256(hash []byte, privateKey string, passphrase string) (string, error) {
+	hexlifiedHash := hex.EncodeToString(hash)
+	// Keys initialization as before (omitted)
 
-	var count uint16 = elf.GetSectionCount()
-	for i := range count {
-		if i == 0 {
-			continue
-		}
-
-		name, err := elf.GetSectionName(i)
-		Check(err)
-
-		if name == section {
-			header, err := elf.GetSectionHeader(i)
-			Check(err)
-			return header, nil
-		}
-	}
-
-	return nil, fmt.Errorf("Section not found")
-}
-
-func CalculateMD5(path string) []byte {
-	elf, err := readELF(path)
-	Check(err)
-	hash := md5.New()
-	var count uint16 = elf.GetSectionCount()
-	for i := range count {
-		// First section never has a name.
-		if i == 0 {
-			continue
-		}
-
-		name, err := elf.GetSectionName(i)
-		Check(err)
-		switch name {
-		case ".bss":
-			// This only exists in memory, and
-			// does not have contents which need to be hashed.
-			continue
-		case ".digest_md5":
-		case ".sha256_sig":
-		case ".sig_key":
-			// Skip them entirely as if they are not even here.
-			continue
-		}
-
-		fmt.Printf("Section %d name: %s\n", i, name)
-		content, err := elf.GetSectionContent(i)
-		Check(err)
-		hash.Write(content)
-
-	}
-	finalHash := hash.Sum(nil)
-
-	return finalHash
-}
-
-func UpdateMD5(path string, hash []byte) error {
-	header, err := getSectionHeaderByName(path, ".digest_md5")
-	if err != nil {
-		return err
-	}
-
-	if size := header.GetSize(); size < uint64(len(hash)) {
-		return fmt.Errorf(".digest_md5 section has length %d instead of %d", size, len(hash))
-	}
-	offset := header.GetFileOffset()
-
-	file, err := os.OpenFile(path, os.O_RDWR, 0)
-	if err != nil {
-		return err
-	}
-	defer file.Sync()
-	defer file.Close()
-
-	bytesWritten, err := file.WriteAt(hash, int64(offset))
-	if err != nil {
-		return err
-	}
-
-	if bytesWritten != len(hash) {
-		return fmt.Errorf(".digest_md5 was not correctly written")
-	}
-
-	return nil
+	return helper.SignCleartextMessageArmored(privateKey, []byte(passphrase), hexlifiedHash)
 }
