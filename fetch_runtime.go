@@ -42,6 +42,8 @@ func downloadFromUrl(url string) string {
 	return fileName
 }
 
+// Downloads the AppImage Engine from the official source
+// and returns the location of the downloaded file.
 func DownloadAppImageEngine(arch string) string {
 	dlLocation := downloadFromUrl(DOWNLOAD_URL + "/runtime-" + arch)
 	return dlLocation

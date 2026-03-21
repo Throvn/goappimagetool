@@ -4,3 +4,4 @@ sample-runtime-x86_64
 runtime-x86_64
 test_fs.squashfs
 *.asc
+*.AppImage
