@@ -43,10 +43,13 @@ func main() {
 		currUser, err := user.Current()
 		ait.Check(err)
 
-		key, err := ait.GenerateSigningKey(currUser.Username, flag.Arg(1), *passphrase)
+		secretKey, publicKey, err := ait.GenerateSigningKey(currUser.Username+" - AppImageTool.go", flag.Arg(1), *passphrase)
 		ait.Check(err)
 
-		os.WriteFile("private.asc", []byte(key), 0o400)
+		err = os.WriteFile("private.asc", []byte(secretKey), 0o400)
+		ait.Check(err)
+		os.WriteFile("public.asc", []byte(publicKey), 0o400)
+		ait.Check(err)
 
 		return
 	}
