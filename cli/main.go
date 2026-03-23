@@ -28,10 +28,10 @@ func checkArch(arch *string) error {
 
 func main() {
 	// Args for default (mkappdir) command
-	arch := flag.String("arch", "x86_64", "System Architecture on which the AppImage should run. Valid values are: x86_64, aarch64, i686, armhf")
-	runtimePath := flag.String("runtime-file", "", "(Optional) Path of AppImage runtime which is copied into in the AppImage")
-	privKeyPath := flag.String("sign-key", "", "(Optional) Path of PGP key file (.asc) to sign the AppImage")
-	passphrase := flag.String("passphrase", "", "(Optional) Passphrase of encrypted PGP key file. Only use if encrypted.")
+	arch := flag.String("-arch", "x86_64", "System Architecture on which the AppImage should run. Valid values are: x86_64, aarch64, i686, armhf")
+	runtimePath := flag.String("-runtime-file", "", "(Optional) Path of AppImage runtime which is copied into in the AppImage")
+	privKeyPath := flag.String("-sign-key", "", "(Optional) Path of PGP key file (.asc) to sign the AppImage")
+	passphrase := flag.String("-passphrase", "", "(Optional) Passphrase of encrypted PGP key file. Only use if encrypted.")
 
 	flag.Parse()
 
