@@ -1,4 +1,4 @@
-package appimagetoolgo
+package goappimagetool
 
 import (
 	"crypto/md5"
