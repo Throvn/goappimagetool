@@ -1,4 +1,4 @@
-module github.com/Throvn/appimagetool.go
+module github.com/Throvn/goappimagetool
 
 go 1.24.5
 
