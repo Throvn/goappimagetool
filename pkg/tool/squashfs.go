@@ -75,7 +75,7 @@ func CreateSquashFSFromFolder(srcFolder string, outputFileName string) string {
 	}
 
 	err = sqfs.Finalize(squashfs.FinalizeOptions{
-		Compression: &squashfs.CompressorXz{},
+		Compression: &squashfs.CompressorZstd{},
 	})
 
 	Check(err)
