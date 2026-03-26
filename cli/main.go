@@ -74,7 +74,7 @@ func main() {
 	// Otherwise download the AppImage engine from the official source.
 	appImageEngine := *runtimePath
 	if appImageEngine == "" {
-		appImageEngine = ait.DownloadAppImageEngine(ARCH_x86_64)
+		appImageEngine = ait.DownloadAppImageEngine(*arch)
 	}
 	appImageEngine, err := filepath.Abs(appImageEngine)
 	ait.Check(err)
