@@ -11,6 +11,8 @@ import (
 	"github.com/yalue/elf_reader"
 )
 
+// Opens and parses the elf file.
+// Note: You need to close the file later yourself.
 func readELF(path string) (elf_reader.ELFFile, error) {
 	// Print the section names in path. This code will work on both 32-bit
 	// and 64-bit systems.
@@ -53,6 +55,8 @@ func getSectionHeaderByName(path string, section string) (elf_reader.ELFSectionH
 	return nil, fmt.Errorf("Section not found")
 }
 
+// Creates an MD5 hash of the engine elf binary,
+// but excludes special fields like signature fields.
 func hashEngine(path string) (hash.Hash, int64) {
 	var offset int64 = 0
 	hash := md5.New()
@@ -90,6 +94,8 @@ func hashEngine(path string) (hash.Hash, int64) {
 	return hash, offset
 }
 
+// Calculates the MD5 hash over the complete .AppImage executable.
+// Conforms to the AppImage spec.
 func CalculateMD5(path string) []byte {
 	// First read the start of the file and hash its contents.
 	hash, offset := hashEngine(path)
@@ -122,10 +128,13 @@ func CalculateMD5(path string) []byte {
 	return finalHash
 }
 
+// Overwrites the .digest_md5 section in the AppImage Engine elf binary.
 func UpdateMD5(path string, hash []byte) error {
 	return OverwriteSection(path, ".digest_md5", hash)
 }
 
+// Calculates a sha256 hash from a given file.
+// Hashes the entire content.
 func CalculateSha256(path string) []byte {
 	hash := sha256.New()
 
@@ -148,6 +157,7 @@ func CalculateSha256(path string) []byte {
 	return hash.Sum(nil)
 }
 
+// Overwrites the .sha256_sig section in the AppImage Engine elf binary.
 func UpdateSha256(path string, hash []byte) error {
 	return OverwriteSection(path, ".sha256_sig", hash)
 }

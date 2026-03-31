@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// Download location of the AppImage engine binaries.
 const DOWNLOAD_URL = "https://github.com/AppImage/type2-runtime/releases/download/continuous"
 
 func downloadFromUrl(url string) (string, error) {

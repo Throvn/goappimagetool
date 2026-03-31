@@ -8,12 +8,14 @@ import (
 	"path/filepath"
 )
 
+// If an error supplied it panics printing the error.
 func Check(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
+// Calculates the size in bytes for a given directory path including all contents.
 func DirSize(path string) (int64, error) {
 	var size int64
 	err := filepath.Walk(path, func(_ string, info os.FileInfo, err error) error {
@@ -44,6 +46,11 @@ func AppendToFile(src string, dest string) {
 	Check(err)
 }
 
+// Used to overwrite sections of elf files.
+//
+// Path is the location of the elf file.
+// Section is the name of the section you want to overwrite (e.g. .sign_key)
+// Content is what you want to write into the section
 func OverwriteSection(path string, section string, content []byte) error {
 	header, err := getSectionHeaderByName(path, section)
 	if err != nil {

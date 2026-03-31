@@ -13,6 +13,7 @@ import (
 	"github.com/diskfs/go-diskfs/filesystem/squashfs"
 )
 
+// Creates a squashfs file from a supplied folder and saves it to `outputFileName`
 func CreateSquashFSFromFolder(srcFolder string, outputFileName string) string {
 	// TODO: Explain why we need to set the logical block size and which values should be used
 	var LogicalBlocksize diskfs.SectorSize = diskfs.SectorSize4k
