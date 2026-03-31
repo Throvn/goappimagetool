@@ -54,7 +54,7 @@ func CreateSquashFSFromFolder(srcFolder string, outputFileName string) string {
 			Check(err)
 			log.Default().Print(dirPath)
 		}
-		// Open the file in the ISO file for writing
+		// Open the file in the squashfs file for writing
 		rw, err := fs.OpenFile(relPath, os.O_CREATE|os.O_WRONLY)
 		Check(err)
 
@@ -64,8 +64,15 @@ func CreateSquashFSFromFolder(srcFolder string, outputFileName string) string {
 			return err
 		}
 
-		// Copy the contents of the source file to the ISO file
+		// Copy the contents of the source file to the squashfs file
 		_, err = io.Copy(rw, in)
+		Check(err)
+
+		stat, err := os.Stat(path)
+		Check(err)
+
+		// Copy permissions from real file to squashfs file.
+		err = fs.Chmod(relPath, stat.Mode())
 		Check(err)
 
 		Check(rw.Close())
