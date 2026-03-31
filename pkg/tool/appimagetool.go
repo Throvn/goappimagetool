@@ -35,15 +35,22 @@ func safeFileBase(path string) string {
 	return filepath.Join(dir, file)
 }
 
-func CreateAppImage(path string, appImageEngine string, pgp PGPMaterial) {
-	fileName := safeFileBase(path) + ".AppImage"
+// Creates an app image from an AppDir.
+//
+// appDirPath = directory which you want to turn into an AppImage. Make sure that it follows the AppImage spec.
+//
+// appImageEnginePath = file of the AppImage engine. Use `DownloadAppImageEngine` function if you don't have an AppImage Engine ready yet.
+//
+// pgp = The pgp key to sign the AppImage. It's optional. If you don't want to sign your AppImage, supply an empty struct.
+func CreateAppImage(appDirPath string, appImageEnginePath string, pgp PGPMaterial) {
+	fileName := safeFileBase(appDirPath) + ".AppImage"
 
-	copyFile(appImageEngine, fileName)
+	copyFile(appImageEnginePath, fileName)
 
 	// (re)create squashfs from folder structure
-	outFileName := safeFileBase(path) + ".squashfs"
+	outFileName := safeFileBase(appImageEnginePath) + ".squashfs"
 	os.Remove(outFileName)
-	CreateSquashFSFromFolder(path, outFileName)
+	CreateSquashFSFromFolder(appDirPath, outFileName)
 
 	// Add file integrity check
 	AppendToFile(outFileName, fileName)
@@ -66,7 +73,7 @@ func CreateAppImage(path string, appImageEngine string, pgp PGPMaterial) {
 	// Cleanup temp files
 	err := os.Remove(outFileName)
 	Check(err)
-	err = os.Remove(appImageEngine)
+	err = os.Remove(appImageEnginePath)
 	Check(err)
 
 	fmt.Printf("Created %s\n", fileName)
