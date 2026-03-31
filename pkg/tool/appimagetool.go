@@ -66,7 +66,7 @@ func CreateAppImage(path string, appImageEngine string, pgp PGPMaterial) {
 	// Cleanup temp files
 	err := os.Remove(outFileName)
 	Check(err)
-	os.Remove(appImageEngine)
+	err = os.Remove(appImageEngine)
 	Check(err)
 
 	fmt.Printf("Created %s\n", fileName)

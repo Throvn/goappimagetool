@@ -3,6 +3,7 @@ package goappimagetool
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -16,7 +17,9 @@ func CreateSquashFSFromFolder(srcFolder string, outputFileName string) string {
 	// TODO: Explain why we need to set the logical block size and which values should be used
 	var LogicalBlocksize diskfs.SectorSize = diskfs.SectorSize4k
 
-	var diskSize int64 = 10 * int64(LogicalBlocksize)
+	var diskSize, err = DirSize(srcFolder)
+	diskSize = diskSize * 2
+	Check(err)
 
 	// Create the disk image
 	mydisk, err := diskfs.Create(outputFileName, diskSize, LogicalBlocksize)
@@ -38,32 +41,34 @@ func CreateSquashFSFromFolder(srcFolder string, outputFileName string) string {
 		relPath, err := filepath.Rel(srcFolder, path)
 		Check(err)
 
-		// If the current path is a folder, create the folder in the ISO filesystem
 		if info.IsDir() {
-			// Create the directory in the SquashFS file
-			err = fs.Mkdir(relPath)
+			err := fs.Mkdir(relPath)
 			Check(err)
 			return nil
 		}
 
 		// If the current path is a file, copy the file to the SquashFS filesystem
-		if !info.IsDir() {
-			// Open the file in the ISO file for writing
-			rw, err := fs.OpenFile(relPath, os.O_CREATE|os.O_RDWR)
+		if dirPath := filepath.Dir(relPath); dirPath != "." {
+			err := fs.Mkdir(filepath.Dir(relPath))
 			Check(err)
-			defer rw.Close()
-
-			// Open the source file for reading
-			in, errorOpeningFile := os.Open(path)
-			if errorOpeningFile != nil {
-				return errorOpeningFile
-			}
-			defer in.Close()
-
-			// Copy the contents of the source file to the ISO file
-			_, err = io.Copy(rw, in)
-			Check(err)
+			log.Default().Print(dirPath)
 		}
+		// Open the file in the ISO file for writing
+		rw, err := fs.OpenFile(relPath, os.O_CREATE|os.O_WRONLY)
+		Check(err)
+
+		// Open the source file for reading
+		in, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+
+		// Copy the contents of the source file to the ISO file
+		_, err = io.Copy(rw, in)
+		Check(err)
+
+		Check(rw.Close())
+		Check(in.Close())
 
 		return nil
 	})
@@ -77,7 +82,6 @@ func CreateSquashFSFromFolder(srcFolder string, outputFileName string) string {
 	err = sqfs.Finalize(squashfs.FinalizeOptions{
 		Compression: &squashfs.CompressorZstd{},
 	})
-
 	Check(err)
 
 	return outputFileName
